@@ -1,12 +1,11 @@
 import matplotlib.pyplot as plt
 from kivy.app import App
-from kivy.uix.image import Image
-from kivy.uix.boxlayout import BoxLayout
 from kivy.lang import Builder
 from kivy.core.window import Window
 import mplcyberpunk
+from kivy.clock import Clock
 
-Window.size = (300, 300)
+Window.size = (500, 500)
 
 KV = '''
 BoxLayout:
@@ -14,24 +13,32 @@ BoxLayout:
     Image:
         id: img
         source: ''
-    Button:
-        size_hint_y: 0.2
-        text: 'Plot'
-        on_press: app.plot_graph()
+    # Button:
+    #     size_hint_y: 0.2
+    #     text: 'Plot'
+    #     on_press: app.plot_graph()
 '''
 
 class MatplotlibApp(App):
     def build(self):
+        Clock.schedule_interval(self.plot_graph, 2)
         return Builder.load_string(KV)
-
-    def plot_graph(self):
+    def plot_graph(self, time):
+        print(123)
         # Create a plot
+        plt.rcParams['font.size'] = 35
         plt.style.use("cyberpunk")
 
-        plt.plot([1, 3, 9, 5, 2, 1, 1], marker='o')
-        plt.plot([4, 5, 5, 7, 9, 8, 6], marker='o')
+        # set the plt size same as the window
+        plt.figure(figsize=(20, 11), constrained_layout=True)
+
+        line_width = 8
+        plt.plot([1, 3, 9, 5, 2, 1, 1], marker='o', linewidth=line_width, label="gold price")
+        plt.plot([4, 5, 5, 7, 9, 8, 6], marker='o', linewidth=line_width, label="dollar price")
+        plt.legend()
 
         mplcyberpunk.add_glow_effects()
+        # plt.subplots_adjust(left=0.1, right=0.1, top=0.1, bottom=0.1)
 
         # Save the plot as a png file
         try:
