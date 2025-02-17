@@ -6,6 +6,8 @@ import mplcyberpunk
 from kivy.clock import Clock
 import datetime
 from info_util import InfoUtil
+import info_util
+import logging
 
 
 Window.size = (500, 500)
@@ -25,7 +27,7 @@ BoxLayout:
 class MatplotlibApp(App):
     def build(self):
         info_util = InfoUtil()
-        Clock.schedule_interval(lambda dt: self.plot_graph(dt, info_util=info_util), 2)
+        Clock.schedule_interval(lambda dt: self.plot_graph(dt, util=info_util), 2)
         return Builder.load_string(KV)
 
     def update(self, info_util):
@@ -75,21 +77,23 @@ class MatplotlibApp(App):
         mplcyberpunk.add_glow_effects()
 
 
-    def plot_graph(self, time, info_util):
-        info_util.update_if_need()
+    def plot_graph(self, time, util):
+        util.update_if_need()
         # Create a plot
-        self.update(info_util)
+        self.update(util)
         # plt.subplots_adjust(left=0.1, right=0.1, top=0.1, bottom=0.1)
 
         # Save the plot as a png file
         try:
-            plt.savefig('plot.png')
+            img_path = info_util.base_path + 'plot.png'
+            plt.savefig(img_path)
+            # Update the source of the Image widget
+            self.root.ids.img.source = img_path
+            self.root.ids.img.reload()  # Ensure the image is reloaded and displayed
         except Exception as e:
+            logging.error(f"Error saving file: {e}")
             print(f"Error saving file: {e}")
 
-        # Update the source of the Image widget
-        self.root.ids.img.source = 'plot.png'
-        self.root.ids.img.reload()  # Ensure the image is reloaded and displayed
 
 if __name__ == '__main__':
     MatplotlibApp().run()

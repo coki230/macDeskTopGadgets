@@ -67,7 +67,7 @@ class InfoUtil:
             res_json = response.json()
             with open(base_path + 'exchange_rate.txt', 'a') as file:
                 file.write(json.dumps(res_json['result'][0]) + "\n")
-            self.rate_queue.put(res_json['result'][0]['exchange'][:-5])
+            self.rate_queue.put(float(res_json['result'][0]['exchange'][:-5]))
         else:
             # 网络异常等因素，解析结果异常。可依据业务逻辑自行处理。
             print('请求异常')
@@ -91,7 +91,7 @@ class InfoUtil:
             res_json = response.json()
             with open(base_path + 'gold.txt', 'a') as file:
                 file.write(json.dumps(res_json['result'][0]) + "\n")
-            self.gold_queue.put(res_json['result'][0]['4']['latestpri'])
+            self.gold_queue.put(float(res_json['result'][0]['4']['latestpri']))
             self.time_queue.put(res_json['result'][0]['4']['time'][8:13].replace(" ", "-"))
         else:
             # 网络异常等因素，解析结果异常。可依据业务逻辑自行处理。
