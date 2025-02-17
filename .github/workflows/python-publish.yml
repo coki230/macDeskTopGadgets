@@ -31,9 +31,6 @@ jobs:
         pyenv global 3.8.10
         echo "================="
         python --version
-        echo $HOME
-        ls -al /Users/runner/.pyenv/versions/3.8.10/bin
-        cat ~/.bashrc
         echo "================="
         python -m pip install --upgrade pip
         pip install buildozer
@@ -41,25 +38,27 @@ jobs:
         pip install kivymd
         pip install Cython==0.29.33
         pip list -v
-        export PATH="/Users/runner/.pyenv/versions/3.8.10/bin:$PATH"
-        source ~/.bashrc
-        
-        echo "================="
-        python --version
-        ls -al $HOME
-        ls -al /Users/runner/.pyenv/versions/3.8.10/bin
-        cat ~/.bashrc
-        echo "================="
-        
+        # export PATH="/Users/runner/.pyenv/versions/3.8.10/bin:$PATH"
+        # source ~/.bashrc        
         
     - name: download the init files
       run: |
+      
+        echo "================="
+        python --version
+        echo "================="
+        export PATH="/Users/runner/.pyenv/versions/3.8.10/bin:$PATH"
+        
+        echo "================="
+        python --version
+        echo "================="
         buildozer -v osx debug
       continue-on-error: true
       
     - name: generate dmg
       run: |
         sed -i '' 's|source activate|source ${SCRIPT_PATH}/venv/bin/activate|g' /Users/runner/work/macDeskTopGadgets/macDeskTopGadgets/.buildozer/osx/platform/kivy-sdk-packager-master/osx/Kivy.app/Contents/Resources/script
+        export PATH="/Users/runner/.pyenv/versions/3.8.10/bin:$PATH"
         buildozer -v osx debug
 
 
