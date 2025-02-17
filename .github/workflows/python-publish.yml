@@ -26,7 +26,7 @@ jobs:
         export PATH="$HOME/.pyenv/bin:$PATH"
         eval "$(pyenv init --path)"
         eval "$(pyenv virtualenv-init -)"
-        source ~/.bashrc
+        # source ~/.bashrc
         pyenv install 3.8.10
         pyenv global 3.8.10
         echo "================="
