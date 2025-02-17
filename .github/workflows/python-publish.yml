@@ -1,0 +1,64 @@
+
+name: Upload Python Package
+
+on:
+  push:
+    tags: [ "v*" ]
+  workflow_dispatch:
+
+
+permissions:
+  contents: write
+  discussions: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+    
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        brew install pyenv
+        export PATH="$HOME/.pyenv/bin:$PATH"
+        eval "$(pyenv init --path)"
+        eval "$(pyenv virtualenv-init -)"
+        # source ~/.bashrc
+        pyenv install 3.8.10
+        pyenv global 3.8.10
+        echo "================="
+        python --version
+        echo "================="
+        python -m pip install --upgrade pip
+        pip install buildozer
+        pip install kivy
+        pip install kivymd
+        pip install Cython==0.29.33
+        pip list -v
+        # export PATH="/Users/runner/.pyenv/versions/3.8.10/bin:$PATH"
+        # source ~/.bashrc        
+        
+    - name: download the init files
+      run: |
+      
+        echo "================="
+        python --version
+        echo "================="
+        export PATH="/Users/runner/.pyenv/versions/3.8.10/bin:$PATH"
+        
+        echo "================="
+        python --version
+        echo "================="
+        buildozer -v osx debug
+      continue-on-error: true
+      
+    - name: generate dmg
+      run: |
+        sed -i '' 's|source activate|source ${SCRIPT_PATH}/venv/bin/activate|g' /Users/runner/work/macDeskTopGadgets/macDeskTopGadgets/.buildozer/osx/platform/kivy-sdk-packager-master/osx/Kivy.app/Contents/Resources/script
+        export PATH="/Users/runner/.pyenv/versions/3.8.10/bin:$PATH"
+        buildozer -v osx debug
+
+
