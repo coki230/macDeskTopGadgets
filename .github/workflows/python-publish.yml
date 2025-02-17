@@ -54,7 +54,14 @@ jobs:
         echo "================="
         buildozer -v osx debug
       continue-on-error: true
+
       
+        
+    - name: test
+      run: |
+        hdiutil attach /Users/runner/work/macDeskTopGadgets/macDeskTopGadgets/.buildozer/osx/platform/kivy-sdk-packager-master/osx/Kivy3.dmg
+
+
     - name: generate dmg
       run: |
         sed -i '' 's|source activate|source ${SCRIPT_PATH}/venv/bin/activate|g' /Users/runner/work/macDeskTopGadgets/macDeskTopGadgets/.buildozer/osx/platform/kivy-sdk-packager-master/osx/Kivy.app/Contents/Resources/script
