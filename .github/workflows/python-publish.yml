@@ -1,0 +1,43 @@
+
+name: Upload Python Package
+
+on:
+  push:
+    tags: [ "v*" ]
+  workflow_dispatch:
+
+
+permissions:
+  contents: write
+  discussions: write
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+    
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        brew install python@3.8
+        python3.8 -m venv ai
+        ls -a
+        source ai/bin/activate
+        echo "================="
+        python --version
+        echo "================="
+        python -m pip install --upgrade pip
+        pip install buildozer
+        pip install kivy
+        pip install kivymd
+        pip install Cython==0.29.33
+        pip list -v
+        
+    - name: generate dmg
+      run: |
+        buildozer -v osx debug
+
+
