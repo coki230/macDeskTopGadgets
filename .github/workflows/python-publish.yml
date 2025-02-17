@@ -31,6 +31,9 @@ jobs:
         pyenv global 3.8.10
         echo "================="
         python --version
+        ls -al $HOME/.pyenv/bin
+        ls -al /Users/runner/.pyenv/versions/3.8.10/bin
+        cat ~/.bashrc
         echo "================="
         python -m pip install --upgrade pip
         pip install buildozer
