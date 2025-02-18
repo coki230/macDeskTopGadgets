@@ -34,6 +34,7 @@ jobs:
         echo "================="
         python -m pip install --upgrade pip
         pip install git+https://github.com/kivy/buildozer.git
+        pip install docopt
         pip install kivy
         pip install kivymd
         pip install Cython==0.29.33
