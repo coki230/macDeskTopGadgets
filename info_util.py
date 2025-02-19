@@ -28,22 +28,28 @@ class InfoUtil:
         self.rate_queue = CircularQueue(24)
         self.time_queue = CircularQueue(24)
         # we need call the api to update the data every hour, so we need to record the last hour
-        self.old_hour = ""
+        self.update_data_time = ""
+        self.same_as_last = False
+        self.need_update = False
 
     def update_if_need(self):
-        # check the queue is null, then we need to update
-        if len(self.gold_queue.get_all()) == 0:
-            self.update_exchange_rate()
+
+        new_hour = datetime.datetime.now().strftime('%H')
+        minute = datetime.datetime.now().strftime('%M')
+
+        # if time between 09:00 to 18:00, we can call the api to update the data, cause the free api one day just call 20 times
+        if "09" <= new_hour <= "18":
+            # check the queue is null, then we need to update
+            if len(self.gold_queue.get_all()) == 0:
+                self.need_update = True
+            elif new_hour != self.update_data_time and minute == "16":
+                self.need_update = True
+
+        if self.need_update:
             self.update_gold_info()
-        else:
-            new_hour = datetime.datetime.now().strftime('%H')
-            if new_hour != self.old_hour:
-                minute = datetime.datetime.now().strftime('%M')
-                if minute == "16":
-                    self.update_exchange_rate()
-                    self.update_gold_info()
-                    # update the old hour
-                    self.old_hour = new_hour
+            self.update_exchange_rate()
+            self.update_data_time = new_hour
+            self.need_update = False
 
 
     def update_exchange_rate(self):
@@ -65,9 +71,10 @@ class InfoUtil:
         # 解析响应结果
         if response.status_code == 200:
             res_json = response.json()
-            with open(base_path + 'exchange_rate.txt', 'a') as file:
-                file.write(json.dumps(res_json['result'][0]) + "\n")
-            self.rate_queue.put(float(res_json['result'][0]['exchange'][:-5]))
+            if not self.same_as_last:
+                with open(base_path + 'exchange_rate.txt', 'a') as file:
+                    file.write(json.dumps(res_json['result'][0]) + "\n")
+                self.rate_queue.put(float(res_json['result'][0]['exchange'][:-5]))
         else:
             # 网络异常等因素，解析结果异常。可依据业务逻辑自行处理。
             print('请求异常')
@@ -89,10 +96,18 @@ class InfoUtil:
         # 解析响应结果
         if response.status_code == 200:
             res_json = response.json()
-            with open(base_path + 'gold.txt', 'a') as file:
-                file.write(json.dumps(res_json['result'][0]) + "\n")
-            self.gold_queue.put(float(res_json['result'][0]['4']['latestpri']))
-            self.time_queue.put(res_json['result'][0]['4']['time'][8:13].replace(" ", "-"))
+            update_time = res_json['result'][0]['4']['time'][8:13].replace(" ", "-")
+            # if the last update time is not equal to the current time, then we need to update
+            if len(self.time_queue.get_all()) > 0 and update_time == self.time_queue.get_all()[-1]:
+                self.same_as_last = True
+            else:
+                self.same_as_last = False
+
+            if not self.same_as_last:
+                with open(base_path + 'gold.txt', 'a') as file:
+                    file.write(json.dumps(res_json['result'][0]) + "\n")
+                self.gold_queue.put(float(res_json['result'][0]['4']['latestpri']))
+                self.time_queue.put(update_time)
         else:
             # 网络异常等因素，解析结果异常。可依据业务逻辑自行处理。
             print('请求异常')
@@ -108,4 +123,4 @@ class InfoUtil:
 # print(j['result'][0]['4'])
 
 # util = InfoUtil()
-# util.update_exchange_rate()
+# print(len(util.time_queue.get_all()))

@@ -78,7 +78,11 @@ class MatplotlibApp(App):
 
 
     def plot_graph(self, time, util):
-        util.update_if_need()
+        try:
+            util.update_if_need()
+        except Exception as e:
+            print(f"Error updating data: {e}")
+            logging.error(f"Error updating data: {e}")
         # Create a plot
         self.update(util)
         # plt.subplots_adjust(left=0.1, right=0.1, top=0.1, bottom=0.1)
